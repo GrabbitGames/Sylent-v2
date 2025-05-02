@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sylent Unblocker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Link to Font Awesome for icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+<style>
+        /* General Styles */
+        
+
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 36px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        /* Search Bar Styling */
+        .search-container {
+            position: relative;
+            width: 100px;
+            margin-bottom: 30px;
+        }
+
+        .search-bar {
+            width: 30%;
+            padding: 12px 20px;
+            font-size: 16px;
+            color: white;
+            background-color: #333;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .search-bar:focus {
+            outline: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 255, 0.7);
+            background-color: #222;
+        }
+
+        .search-bar::placeholder {
+            color: #aaa;
+            font-weight: 300;
+        }
+
+        /* Game Image Section */
+        .game-images {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        /* Image container */
+        .game-image-container {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            overflow: hidden;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .game-image-container:hover {
+            transform: scale(1.05);
+        }
+
+        .game-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Title hidden by default */
+.game-title {
+    position: absolute;
+    bottom: 0;
+    left: 0;  /* Remove the left: 2; */
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    text-align: center;
+    padding: 10px;
+    font-size: 18px;
+    font-weight: 600;
+    text-transform: uppercase;
+    opacity: 0;
+    transform: translateY(100%);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    display: flex;
+    justify-content: center; /* Centers the text horizontally */
+    align-items: center;     /* Centers the text vertically */
+}
+
+        /* Show the title on hover */
+        .game-image-container:hover .game-title {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .game-image-container {
+                width: 200px;
+                height: 300px;
+            }
+        }
+    </style>
+    <script src="/storage/js/script.js"></script>
+    <script src="/static/uv/uv.bundle.js" defer></script>
+    <script src="/static/uv/uv.config.js" defer></script>
+    <script src="/static/register-sw.js" defer></script>
+    <script src="/static/search.js" defer></script>
+    <script src="/static/index.js" defer></script>
+    <style>
+        /* General Styles */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: black;
+            height: 100vh;
+            overflow: hidden;
+            color: white;
+            font-family: 'Orbitron', sans-serif; 
+        }
+
+        canvas {
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        /* Navbar Container *//* Navbar Container */
+.navbar-container {
+    display: flex;
+    justify-content: center;
+    padding: 20px 0;
+    position: relative;
+    background-color: rgba(0, 0, 0, 0.6); /* Transparent black */
+    border-radius: 25px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    margin-top: 20px;
+    width: 100%;
+    z-index: 10; /* Ensure the navbar is above the canvas */
+    backdrop-filter: blur(10px); /* Optional: adds a blur effect to the background */
+}
+
+/* Navbar Styling */
+.navbar {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    gap: 40px;
+    padding: 10px;
+}
+
+.navbar a {
+    text-align: center;
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
+    padding: 10px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+   font-family: 'Orbitron', sans-serif;  
+}
+
+/* Hover and Active Effects */
+.navbar a:hover {
+    background-color: #5b2c6f;
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
+}
+
+.navbar a.active {
+    background-color: #9b59b6;
+    transform: scale(1.05);
+}
+
+.navbar .icon {
+    font-size: 30px;
+    margin-bottom: 5px;
+}
+
+        /* Main Content */
+        .content {
+            color: white;
+            text-align: center;
+            padding-top: 150px;
+            font-size: 24px;
+            z-index: 10; /* Ensure content is above the hyperspace background */
+            position: relative;
+        }
+
+        /* Loading Spinner */
+        #loadingMessage {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            opacity: 1;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            margin-left: 10px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Hyperspace Background -->
+    <canvas id="hyperspaceCanvas"></canvas>
+
+    <!-- Navbar -->
+    <div class="navbar-container">
+        <div class="navbar">
+            <a href="#" class="icon-container">
+                <i class="fas fa-home icon"></i><div>Home</div>
+            </a>
+            <a href="games.html" class="icon-container">
+                <i class="fas fa-gamepad icon"></i><div>Games</div>
+            </a>
+            <a href="proxy.html" class="icon-container">
+                <i class="fas fa-plug icon"></i><div>Proxy</div>
+            </a>
+            <a href="settings.html" class="icon-container">
+                <i class="fas fa-cogs icon"></i><div>Settings</div>
+            </a>
+            <a href="apps.html" class="icon-container">
+                <i class="fas fa-th-large icon"></i><div>Apps</div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+        <h1>Search</h1>
+           <div id="search-bar">
+        <form id="uv-form"">
+            <input id="uv-search-engine" value="https://www.google.com/search?q=%s" type="hidden"/>
+            <input id="uv-address" type="text" class="search-bar" placeholder="Search or enter URL" />  
+        </form>
+    </div>
+        
+<div class="desc left-margin">
+            <p id="uv-error"></p>
+            <pre id="uv-error-code"></pre>
+          </div>
+    </div>
+    <!-- Loading Message -->
+    
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.1/gsap.min.js"></script>
+    <script>
+        const { TweenMax, _ } = window;
+
+        const randomInRange = (max, min) =>
+            Math.floor(Math.random() * (max - min + 1)) + min;
+
+        const ACTIVE_PROBABILITY = 0;
+        const BASE_SIZE = 1;
+        const VELOCITY_INC = 1.01;
+        const VELOCITY_INIT_INC = 1.025;
+        const JUMP_VELOCITY_INC = 1.25;
+        const JUMP_SIZE_INC = 1.15;
+        const SIZE_INC = 1.01;
+        const RAD = Math.PI / 180;
+        const WARP_COLORS = [
+            [197, 239, 247],
+            [25, 181, 254],
+            [77, 5, 232],
+            [165, 55, 253],
+            [255, 255, 255],
+        ];
+
+        class Star {
+            STATE = {
+                alpha: Math.random(),
+                angle: randomInRange(0, 360) * RAD,
+            };
+            reset = () => {
+                const angle = randomInRange(0, 360) * (Math.PI / 180);
+                const vX = Math.cos(angle);
+                const vY = Math.sin(angle);
+                const travelled =
+                    Math.random() > 0.5
+                        ? Math.random() * Math.max(window.innerWidth, window.innerHeight) + (Math.random() * (window.innerWidth * 0.24))
+                        : Math.random() * (window.innerWidth * 0.25);
+                this.STATE = {
+                    ...this.STATE,
+                    iX: undefined,
+                    iY: undefined,
+                    active: travelled ? true : false,
+                    x: Math.floor(vX * travelled) + window.innerWidth / 2,
+                    vX,
+                    y: Math.floor(vY * travelled) + window.innerHeight / 2,
+                    vY,
+                    size: BASE_SIZE,
+                };
+            };
+            constructor() {
+                this.reset();
+            }
+        }
+
+        const generateStarPool = size => new Array(size).fill().map(() => new Star());
+
+        class JumpToHyperspace {
+            STATE = {
+                stars: generateStarPool(300),
+                bgAlpha: 0,
+                sizeInc: SIZE_INC,
+                velocity: VELOCITY_INC,
+                startTime: Date.now(),
+            };
+            canvas = document.getElementById('hyperspaceCanvas');
+            context = this.canvas.getContext('2d');
+            constructor() {
+                this.bind();
+                this.setup();
+                this.render();
+            }
+            render = () => {
+                const { STATE: { bgAlpha, velocity, sizeInc, stars }, context } = this;
+                context.clearRect(0, 0, window.innerWidth, window.innerHeight);
+                if (bgAlpha > 0) {
+                    context.fillStyle = `rgba(31, 58, 157, ${bgAlpha})`;
+                    context.fillRect(0, 0, window.innerWidth, window.innerHeight);
+                }
+                const nonActive = stars.filter(s => !s.STATE.active);
+                if (nonActive.length > 0) {
+                    nonActive[0].STATE.active = true;
+                }
+                for (const star of stars.filter(s => s.STATE.active)) {
+                    const { active, x, y, iX, iY, size, vX, vY } = star.STATE;
+                    if (
+                        ((iX || x) < 0 ||
+                            (iX || x) > window.innerWidth ||
+                            (iY || y) < 0 ||
+                            (iY || y) > window.innerHeight) &&
+                        active
+                    ) {
+                        star.reset(true);
+                    } else if (active) {
+                        const newX = x + vX;
+                        const newY = y + vY;
+                        star.STATE = {
+                            ...star.STATE,
+                            x: newX,
+                            vX: star.STATE.vX * velocity,
+                            y: newY,
+                            vY: star.STATE.vY * velocity,
+                            size: size * sizeInc,
+                        };
+                        let color = `rgba(255, 255, 255, ${star.STATE.alpha})`;
+                        context.strokeStyle = color;
+                        context.lineWidth = size;
+                        context.beginPath();
+                        context.moveTo(star.STATE.iX || x, star.STATE.iY || y);
+                        context.lineTo(star.STATE.x, star.STATE.y);
+                        context.stroke();
+                    }
+                }
+                requestAnimationFrame(this.render);
+            };
+
+            setup() {
+                this.context.lineCap = 'round';
+                this.canvas.height = window.innerHeight;
+                this.canvas.width = window.innerWidth;
+            }
+
+            bind() {
+                this.canvas.addEventListener('mousedown', this.initiate);
+                this.canvas.addEventListener('touchstart', this.initiate);
+            }
+
+            initiate() {
+                this.STATE.bgAlpha = 0.5;
+            }
+        }
+
+        window.myJump = new JumpToHyperspace();
+    </script>
+ 
+</body>
+</html>

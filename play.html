@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Google</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <style>
+    /* Basic reset and center alignment */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html, body {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+background-image: url('full-main.png');
+    }
+
+    /* Main container for the iframe */
+    .iframe-container {
+      position: relative;
+      width: 1200%;
+      max-width: 1200px; /* Increased the max width */
+      height: 800px; /* Increased the height */
+      background-color: #fff;
+      border-radius: 15px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+      margin-top: 30px; /* Increased margin to give space */
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    /* Underbar with the game title, image, and fullscreen button */
+    #gameInfo {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      width: 230%;
+      max-width: 1200px; /* Increased the max width */
+      background-color: #1e1e1e;
+      color: white;
+      padding: 20px 30px; /* Increased padding for bigger bar */
+      border-radius: 15px;
+      margin-top: 20px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    #gameInfo img {
+      height: 80px; /* Increased image size */
+      width: 80px;  /* Increased image size */
+      object-fit: cover;
+      border-radius: 10px;
+    }
+
+    #gameInfo h2 {
+      font-size: 2rem; /* Increased font size for game title */
+      font-weight: bold;
+      margin-left: 30px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    /* Fullscreen button */
+    .fullscreen-btn {
+      background-color: rgba(0, 0, 0, 0.6);
+      color: white;
+      border: none;
+      padding: 16px;
+      font-size: 25px; /* Increased font size for button */
+      border-radius: 50%;
+      cursor: pointer;
+      margin-left: auto; /* Pushes the button to the right */
+    }
+  </style>
+</head>
+<body>
+  <div class="iframe-container" id="iframeContainer">
+    <!-- Iframe that loads the game -->
+    <iframe id="gameFrame"></iframe>
+  </div>
+
+  <!-- Underbar with game title, image, and fullscreen button -->
+  <div id="gameInfo">
+    <img id="gameImage" src="" alt="Game Image">
+    <h2 id="gameTitle">Loading Game...</h2>
+    <button class="fullscreen-btn" id="fullscreenBtn">
+      <i class="fas fa-expand"></i>
+    </button>
+  </div>
+
+  <script>
+    // Parse the query parameters to get the 'url' parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const gameUrl = urlParams.get('url');
+
+    if (gameUrl) {
+      // Extract game name from the URL (remove 'public/assets/games/' and any slashes)
+      const gameName = gameUrl.replace('public/assets/games/', '').replace(/\//g, '');
+
+      // Set the iframe source
+      document.getElementById('gameFrame').src = decodeURIComponent(gameUrl);
+
+      // Dynamically create the image URL by assuming the game's image has the same name as the game
+      const tryImagePaths = [
+        `public/assets/images/${gameName}.png`,               // First try: with .png
+        `public/assets/images/${gameName}.jpg`,               // Second try: with .jpg
+        `public/assets/images/${gameName}.jpeg`,              // Third try: with .jpeg
+        `public/assets/images/${gameName.replace(/-/g, '')}.png`, // Try without dashes and with .png
+        `public/assets/images/${gameName.replace(/-/g, '')}.jpg`, // Try without dashes and with .jpg
+        `public/assets/images/${gameName.replace(/-/g, '')}.jpeg`, // Try without dashes and with .jpeg
+        `public/assets/images/${gameName.toLowerCase()}.png`,   // Try lowercased with .png
+        `public/assets/images/${gameName.toLowerCase()}.jpg`,   // Try lowercased with .jpg
+        `public/assets/images/${gameName.toLowerCase()}.jpeg`,   // Try lowercased with .jpeg
+        `public/assets/images/${gameName.replace(/-/g, '').toLowerCase()}.png`, // Lowercase and no dashes with .png
+        `public/assets/images/${gameName.replace(/-/g, '').toLowerCase()}.jpg`, // Lowercase and no dashes with .jpg
+        `public/assets/images/${gameName.replace(/-/g, '').toLowerCase()}.jpeg`, // Lowercase and no dashes with .jpeg
+      ];
+
+      // Try loading the images until one succeeds
+      let imgLoaded = false;
+      const gameImage = document.getElementById('gameImage');
+      const gameTitle = document.getElementById('gameTitle');
+
+      for (let i = 0; i < tryImagePaths.length; i++) {
+        const imgPath = tryImagePaths[i];
+        const img = new Image();
+        img.src = imgPath;
+
+        img.onload = () => {
+          gameImage.src = imgPath; // Set image source if it loads successfully
+          gameTitle.textContent = gameName.replace(/-/g, ' ').toUpperCase(); // Set the game title
+          imgLoaded = true;
+        };
+
+        img.onerror = () => {
+          if (i === tryImagePaths.length - 1 && !imgLoaded) {
+            gameImage.src = "public/assets/images/default-game.png"; // Default image if all attempts fail
+          }
+        };
+      }
+
+      // Handle fullscreen functionality
+      const fullscreenBtn = document.getElementById('fullscreenBtn');
+      const iframeContainer = document.getElementById('iframeContainer');
+
+      fullscreenBtn.addEventListener('click', function() {
+        if (!document.fullscreenElement) {
+          iframeContainer.requestFullscreen().catch(err => {
+            console.error("Error attempting to enter fullscreen mode: ", err);
+          });
+          fullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';  // Change to 'Exit Fullscreen'
+        } else {
+          document.exitFullscreen();
+          fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';  // Change to 'Fullscreen'
+        }
+      });
+    }
+  </script>
+</body>
+</html>
